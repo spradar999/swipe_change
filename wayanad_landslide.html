@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Scroll Horizontal Slider</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            position: relative;
+            width: 800px;  /* Adjust width */
+            height: 1200px; /* Adjust height */
+            overflow: hidden;
+        }
+
+        .image-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+
+        .image1, .image2 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image2 {
+            clip-path: inset(100% 0 0 0); /* Initially hide Image 2 */
+        }
+
+        .slider-bar {
+            position: absolute;
+            top: 0; /* Start at the top */
+            left: 50%; /* Center the slider bar horizontally */
+            width: 100%; /* Full width */
+            height: 1px; /* Height of the slider bar */
+            background-color: red;
+            transform: translateX(-50%);
+            opacity: 0; /* Initially hidden */
+            transition: opacity 0.3s ease; /* Smooth fade-in */
+        }
+
+        .label {
+            position: absolute;
+            font-weight: bold;
+            transition: opacity 0.3s ease; /* Smooth transition for labels */
+            left: 10px;
+            opacity: 0; /* Initially hidden */
+        }
+
+        .label.before {
+            color: blue;
+        }
+
+        .label.after {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-container">
+            <img src=".\after-xl.jpg" alt="Image 1" class="image1">
+            <img src=".\before-xl.jpg" alt="Image 2" class="image2">
+            <div class="slider-bar"></div>
+            <div class="label before">Before</div>
+            <div class="label after">After</div>
+        </div>
+    </div>
+    <script>
+        let position = 0; // Start at the top
+
+        // Update image 2's clipping and slider position based on the scroll position
+        function updateClipPath() {
+            const image2 = document.querySelector('.image2');
+            const sliderBar = document.querySelector('.slider-bar');
+            const container = document.querySelector('.container');
+
+            // Calculate container height
+            const containerHeight = container.offsetHeight;
+
+            // Update the clip path for Image 2
+            image2.style.clipPath = `inset(${position}% 0 0 0)`;
+
+            // Check if position has moved beyond 5%, show the slider and labels
+            if (position > 5) {
+                sliderBar.style.opacity = '1'; // Show slider
+                document.querySelector('.label.before').style.opacity = '1'; // Show "Before" label
+                document.querySelector('.label.after').style.opacity = '1'; // Show "After" label
+            } else {
+                sliderBar.style.opacity = '0'; // Hide slider
+                document.querySelector('.label.before').style.opacity = '0'; // Hide "Before" label
+                document.querySelector('.label.after').style.opacity = '0'; // Hide "After" label
+            }
+
+            // Update slider position
+            sliderBar.style.top = `${position}%`;
+
+            // Update label positions relative to container height
+            const beforeLabel = document.querySelector('.label.before');
+            const afterLabel = document.querySelector('.label.after');
+
+            // Place the "Before" label just above the slider and "After" just below it
+            afterLabel.style.top = `${(position / 100) * containerHeight - 20}px`; // 20px above the slider
+            beforeLabel.style.top = `${(position / 100) * containerHeight + 10}px`;  // 10px below the slider
+        }
+
+        // Mouse wheel event listener
+        window.addEventListener('wheel', (event) => {
+            event.preventDefault(); // Prevent the default scrolling
+
+            // Change position based on scroll direction
+            if (event.deltaY > 0) {
+                position += 2; // Scroll down
+            } else {
+                position -= 2; // Scroll up
+            }
+
+            // Clamp position between 0 and 100
+            position = Math.max(0, Math.min(position, 100));
+            updateClipPath();
+        });
+
+        // Initial call to set the clip path and slider position
+        updateClipPath();
+    </script>
+</body>
+</html>
